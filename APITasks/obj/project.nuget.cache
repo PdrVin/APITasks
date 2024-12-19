@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "LOMsmgBEJkE=",
+  "dgSpecHash": "fS7p3iROrXs=",
   "success": true,
-  "projectFilePath": "C:\\Users\\pedvi\\OneDrive\\Documentos\\GitHub\\CSharpTasksAPI\\APITasks\\APITasks.csproj",
+  "projectFilePath": "C:\\Users\\pedvi\\OneDrive\\Documentos\\GitHub\\APITasks\\APITasks\\APITasks.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\pedvi\\.nuget\\packages\\microsoft.aspnetcore.openapi\\8.0.10\\microsoft.aspnetcore.openapi.8.0.10.nupkg.sha512",
     "C:\\Users\\pedvi\\.nuget\\packages\\microsoft.extensions.apidescription.server\\6.0.5\\microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",

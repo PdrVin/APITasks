@@ -1,14 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
+using APITasks.Views;
 
 namespace APITasks.Controllers;
 
 [ApiController]
-[Route("/home")]
+[Route("/")]
 public class HomeController : ControllerBase
 {
-    [HttpGet("/index")]
-    public string Index()
+    [HttpGet]
+    public HomeView Index()
     {
-        return "hi";
+        return new HomeView
+        {
+            Message = "Welcome",
+            Documentation = "/swagger"
+        };
     }
 }

@@ -487,11 +487,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\pedvi\\OneDrive\\Documentos\\GitHub\\CSharpTasksAPI\\APITasks\\APITasks.csproj",
+      "projectUniqueName": "C:\\Users\\pedvi\\OneDrive\\Documentos\\GitHub\\APITasks\\APITasks\\APITasks.csproj",
       "projectName": "APITasks",
-      "projectPath": "C:\\Users\\pedvi\\OneDrive\\Documentos\\GitHub\\CSharpTasksAPI\\APITasks\\APITasks.csproj",
+      "projectPath": "C:\\Users\\pedvi\\OneDrive\\Documentos\\GitHub\\APITasks\\APITasks\\APITasks.csproj",
       "packagesPath": "C:\\Users\\pedvi\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\pedvi\\OneDrive\\Documentos\\GitHub\\CSharpTasksAPI\\APITasks\\obj\\",
+      "outputPath": "C:\\Users\\pedvi\\OneDrive\\Documentos\\GitHub\\APITasks\\APITasks\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\pedvi\\AppData\\Roaming\\NuGet\\NuGet.Config"
