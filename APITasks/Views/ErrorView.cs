@@ -1,6 +1,6 @@
 namespace APITasks.Views;
 
-public class ErrorView
+public struct ErrorView
 {
     public required string Message { get; set; }
 }

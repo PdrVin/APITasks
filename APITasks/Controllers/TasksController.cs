@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using APITasks.Database;
-using APITasks.Views;
+using APITasks.DTO;
 using APITasks.Models;
-using APITasks.ModelViews;
+using APITasks.Views;
 
 namespace APITasks.Controllers;
 
@@ -35,10 +35,16 @@ public class TasksController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Create([FromBody] TaskModel task)
+    public IActionResult Create([FromBody] TaskDto taskDto)
     {
-        if (string.IsNullOrEmpty(task.Title))
+        if (string.IsNullOrEmpty(taskDto.Title))
             return StatusCode(400, new ErrorView { Message = "Título Obrigatório!" });
+
+        var task = new TaskModel {
+            Title = taskDto.Title,
+            Description = taskDto.Description,
+            IsCompleted = taskDto.IsCompleted,
+        };
 
         _db.Tasks.Add(task);
         _db.SaveChanges();
@@ -47,18 +53,18 @@ public class TasksController : ControllerBase
     }
     
     [HttpPut("{id}")]
-    public IActionResult Update([FromRoute] int id, [FromBody] TaskModel task)
+    public IActionResult Update([FromRoute] int id, [FromBody] TaskDto taskDto)
     {
-        if (string.IsNullOrEmpty(task.Title))
+        if (string.IsNullOrEmpty(taskDto.Title))
             return StatusCode(400, new ErrorView { Message = "Título Obrigatório!" });
 
         var taskDb = _db.Tasks.Find(id);
         if (taskDb == null)
             return StatusCode(404, new ErrorView { Message = $"Id ({id}) Não Encontrado!" });
         
-        taskDb.Title = task.Title;
-        taskDb.Description = task.Description;
-        taskDb.IsCompleted = task.IsCompleted;
+        taskDb.Title = taskDto.Title;
+        taskDb.Description = taskDto.Description;
+        taskDb.IsCompleted = taskDto.IsCompleted;
 
         _db.Tasks.Update(taskDb);
         _db.SaveChanges();
@@ -73,7 +79,7 @@ public class TasksController : ControllerBase
         if (task == null)
             return StatusCode(404, new ErrorView { Message = $"Id ({id}) Não Encontrado!" });
 
-        _db.Tasks.Delete(task);
+        _db.Tasks.Remove(task);
         _db.SaveChanges();
 
         return StatusCode(200, task);
