@@ -1,5 +1,7 @@
-using APITasks.Database;
 using Microsoft.EntityFrameworkCore;
+using APITasks.Database;
+using APITasks.Services;
+using APITasks.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +10,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<TaskContext>(options =>
     options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 40)))
 );
+
+builder.Services.AddScoped<ITaskService, TaskService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

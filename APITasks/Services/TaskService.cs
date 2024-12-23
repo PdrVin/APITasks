@@ -1,10 +1,12 @@
 using APITasks.Database;
+using APITasks.DTO;
 using APITasks.Models;
 using APITasks.Models.Errors;
+using APITasks.Services.Interfaces;
 
 namespace APITasks.Services;
 
-public class TaskService
+public class TaskService : ITaskService
 {
     public TaskService(TaskContext db)
     {
@@ -13,33 +15,43 @@ public class TaskService
 
     private TaskContext _db;
 
-    public List<TaskModel> TaskList()
+    public List<TaskModel> TaskList(int page = 1)
     {
-        return _db.Tasks.ToList();
+        page = (page < 1) ? 1 : page;
+        int limit = 10;
+        int offset = (page - 1) * limit;
+        return _db.Tasks.Skip(offset).Take(limit).ToList();
     }
 
-    public TaskModel Include(TaskModel task)
+    public TaskModel Include(TaskDto taskDto)
     {
-        if (string.IsNullOrEmpty(task.Title))
+        if (string.IsNullOrEmpty(taskDto.Title))
             throw new TaskError("Título Obrigatório!");
+
+        var task = new TaskModel
+        {
+            Title = taskDto.Title,
+            Description = taskDto.Description,
+            IsCompleted = taskDto.IsCompleted,
+        };
 
         _db.Tasks.Add(task);
         _db.SaveChanges();
         return task;
     }
 
-    public TaskModel Update(int id, TaskModel task)
+    public TaskModel Update(int id, TaskDto taskDto)
     {
-        if (string.IsNullOrEmpty(task.Title))
+        if (string.IsNullOrEmpty(taskDto.Title))
             throw new TaskError("Título Obrigatório!");
 
         var taskDb = _db.Tasks.Find(id);
         if (taskDb == null)
             throw new TaskError("Tarefa Não Encontrada!");
 
-        taskDb.Title = task.Title;
-        taskDb.Description = task.Description;
-        taskDb.IsCompleted = task.IsCompleted;
+        taskDb.Title = taskDto.Title;
+        taskDb.Description = taskDto.Description;
+        taskDb.IsCompleted = taskDto.IsCompleted;
 
         _db.Tasks.Update(taskDb);
         _db.SaveChanges();

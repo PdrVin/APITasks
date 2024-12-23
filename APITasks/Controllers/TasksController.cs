@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using APITasks.Database;
 using APITasks.DTO;
 using APITasks.Models;
+using APITasks.Models.Errors;
+using APITasks.Services.Interfaces;
 using APITasks.Views;
 
 namespace APITasks.Controllers;
@@ -10,79 +12,74 @@ namespace APITasks.Controllers;
 [Route("/tasks")]
 public class TasksController : ControllerBase
 {
-    private TaskContext _db;
+    private ITaskService _service;
 
-    public TasksController(TaskContext db)
+    public TasksController(ITaskService service)
     {
-        _db = db;
+        _service = service;
     }
 
     [HttpGet]
-    public IActionResult Index()
+    public IActionResult Index(int page = 1)
     {
-        var tasks = _db.Tasks.ToList();
+        var tasks = _service.TaskList(page);
         return StatusCode(200, tasks);
     }
 
     [HttpGet("{id}")]
     public IActionResult Select([FromRoute] int id)
     {
-        var task = _db.Tasks.Find(id);
-        if (task == null)
-            return StatusCode(404, new ErrorView { Message = $"Id ({id}) Não Encontrado!" });
-
-        return StatusCode(200, task);
+        try
+        {
+            var task = _service.SelectById(id);
+            return StatusCode(200, task);
+        }
+        catch (TaskError error)
+        {
+            return StatusCode(404, new ErrorView { Message = error.Message });
+        }
     }
 
     [HttpPost]
     public IActionResult Create([FromBody] TaskDto taskDto)
     {
-        if (string.IsNullOrEmpty(taskDto.Title))
-            return StatusCode(400, new ErrorView { Message = "Título Obrigatório!" });
-
-        var task = new TaskModel {
-            Title = taskDto.Title,
-            Description = taskDto.Description,
-            IsCompleted = taskDto.IsCompleted,
-        };
-
-        _db.Tasks.Add(task);
-        _db.SaveChanges();
-
-        return StatusCode(201, task);
+        try
+        {
+            var task = _service.Include(taskDto);
+            return StatusCode(201, task);
+        }
+        catch (TaskError error)
+        {
+            return StatusCode(400, new ErrorView { Message = error.Message });
+        }
     }
-    
+
     [HttpPut("{id}")]
     public IActionResult Update([FromRoute] int id, [FromBody] TaskDto taskDto)
     {
-        if (string.IsNullOrEmpty(taskDto.Title))
-            return StatusCode(400, new ErrorView { Message = "Título Obrigatório!" });
-
-        var taskDb = _db.Tasks.Find(id);
-        if (taskDb == null)
-            return StatusCode(404, new ErrorView { Message = $"Id ({id}) Não Encontrado!" });
-        
-        taskDb.Title = taskDto.Title;
-        taskDb.Description = taskDto.Description;
-        taskDb.IsCompleted = taskDto.IsCompleted;
-
-        _db.Tasks.Update(taskDb);
-        _db.SaveChanges();
-
-        return StatusCode(200, taskDb);
+        try
+        {
+            var task = _service.Update(id, taskDto);
+            return StatusCode(200, task);
+        }
+        catch (TaskError error)
+        {
+            return StatusCode(400, new ErrorView { Message = error.Message });
+        }
     }
 
     [HttpDelete("{id}")]
     public IActionResult Delete([FromRoute] int id)
     {
-        var task = _db.Tasks.Find(id);
-        if (task == null)
-            return StatusCode(404, new ErrorView { Message = $"Id ({id}) Não Encontrado!" });
-
-        _db.Tasks.Remove(task);
-        _db.SaveChanges();
-
-        return StatusCode(200, task);
+        try
+        {
+            _service.Delete(id);
+            return StatusCode(204);
+        }
+        catch (TaskError error) 
+        {
+            return StatusCode(400, new ErrorView { Message = error.Message });
+        }
     }
 }
 
