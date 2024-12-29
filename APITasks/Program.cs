@@ -1,7 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using APITasks.Database;
+using APITasks.Interfaces;
+using APITasks.Interfaces.Base;
+using APITasks.Repository;
+using APITasks.Repository.Base;
 using APITasks.Services;
-using APITasks.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +14,8 @@ builder.Services.AddDbContext<TaskContext>(options =>
     options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 40)))
 );
 
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 
 builder.Services.AddControllers();
