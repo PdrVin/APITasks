@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using APITasks.Database;
 using APITasks.DTO;
+using APITasks.Interfaces;
 using APITasks.Models;
 using APITasks.Models.Errors;
-using APITasks.Services.Interfaces;
 using APITasks.Views;
 
 namespace APITasks.Controllers;
@@ -12,7 +11,7 @@ namespace APITasks.Controllers;
 [Route("/tasks")]
 public class TasksController : ControllerBase
 {
-    private ITaskService _service;
+    private readonly ITaskService _service;
 
     public TasksController(ITaskService service)
     {
@@ -20,67 +19,65 @@ public class TasksController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult Index(int page = 1)
+    public async Task<IActionResult> Index(int page = 1)
     {
-        var tasks = _service.TaskList(page);
-        return StatusCode(200, tasks);
+        var tasks = await _service.GetAllTasksAsync(page);
+        return Ok(tasks);
     }
 
     [HttpGet("{id}")]
-    public IActionResult Select([FromRoute] int id)
+    public async Task<IActionResult> Select([FromRoute] int id)
     {
         try
         {
-            var task = _service.SelectById(id);
-            return StatusCode(200, task);
+            var task = await _service.GetTaskByIdAsync(id);
+            return Ok(task);
         }
         catch (TaskError error)
         {
-            return StatusCode(404, new ErrorView { Message = error.Message });
+            return NotFound(new ErrorView { Message = error.Message });
         }
     }
 
     [HttpPost]
-    public IActionResult Create([FromBody] TaskDto taskDto)
+    public async Task<IActionResult> Create([FromBody] TaskDto taskDto)
     {
         try
         {
-            var task = _service.Include(taskDto);
-            return StatusCode(201, task);
+            var task = await _service.AddTaskAsync(taskDto);
+            return CreatedAtAction(nameof(Select), new { id = task.Id }, task);
         }
         catch (TaskError error)
         {
-            return StatusCode(400, new ErrorView { Message = error.Message });
+            return BadRequest(new ErrorView { Message = error.Message });
         }
     }
 
     [HttpPut("{id}")]
-    public IActionResult Update([FromRoute] int id, [FromBody] TaskDto taskDto)
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] TaskDto taskDto)
     {
         try
         {
-            var task = _service.Update(id, taskDto);
-            return StatusCode(200, task);
+            var task = await _service.UpdateTaskAsync(id, taskDto);
+            return Ok(task);
         }
         catch (TaskError error)
         {
-            return StatusCode(400, new ErrorView { Message = error.Message });
+            return BadRequest(new ErrorView { Message = error.Message });
         }
     }
 
     [HttpDelete("{id}")]
-    public IActionResult Delete([FromRoute] int id)
+    public async Task<IActionResult> Delete([FromRoute] int id)
     {
         try
         {
-            _service.Delete(id);
-            return StatusCode(204);
+            await _service.DeleteTaskAsync(id);
+            return NoContent();
         }
-        catch (TaskError error) 
+        catch (TaskError error)
         {
-            return StatusCode(400, new ErrorView { Message = error.Message });
+            return BadRequest(new ErrorView { Message = error.Message });
         }
     }
 }
-
-
