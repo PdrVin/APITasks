@@ -1,79 +1,56 @@
-using APITasks.Database;
 using APITasks.DTO;
 using APITasks.Models;
-using APITasks.Models.Errors;
-using APITasks.Services.Interfaces;
+using APITasks.Interfaces;
 
 namespace APITasks.Services;
 
 public class TaskService : ITaskService
 {
-    public TaskService(TaskContext db)
+    private readonly ITaskRepository _repository;
+
+    public TaskService(ITaskRepository repository)
     {
-        _db = db;
+        _repository = repository;
     }
 
-    private TaskContext _db;
-
-    public List<TaskModel> TaskList(int page = 1)
+    public async Task<IEnumerable<TaskModel>> GetAllTasksAsync(int page = 1)
     {
-        page = (page < 1) ? 1 : page;
-        int limit = 10;
-        int offset = (page - 1) * limit;
-        return _db.Tasks.Skip(offset).Take(limit).ToList();
+        return await _repository.GetAllAsync(page);
     }
 
-    public TaskModel Include(TaskDto taskDto)
+    public async Task<TaskModel> GetTaskByIdAsync(int id)
     {
-        if (string.IsNullOrEmpty(taskDto.Title))
-            throw new TaskError("Título Obrigatório!");
+        return await _repository.GetByIdAsync(id);
+    }
 
+    public async Task<TaskModel> AddTaskAsync(TaskDto taskDto)
+    {
+        var taskModel = new TaskModel
+        {
+            Title = taskDto.Title,
+            Description = taskDto.Description,
+            IsCompleted = taskDto.IsCompleted
+        };
+
+        return await _repository.AddAsync(taskModel);
+    }
+
+    public async Task<TaskModel> UpdateTaskAsync(int id, TaskDto taskDto)
+    {
         var task = new TaskModel
         {
+            Id = id,
             Title = taskDto.Title,
             Description = taskDto.Description,
             IsCompleted = taskDto.IsCompleted,
         };
 
-        _db.Tasks.Add(task);
-        _db.SaveChanges();
+        await _repository.UpdateAsync(id, taskDto);
         return task;
     }
 
-    public TaskModel Update(int id, TaskDto taskDto)
+    public async Task DeleteTaskAsync(int id)
     {
-        if (string.IsNullOrEmpty(taskDto.Title))
-            throw new TaskError("Título Obrigatório!");
-
-        var taskDb = _db.Tasks.Find(id);
-        if (taskDb == null)
-            throw new TaskError("Tarefa Não Encontrada!");
-
-        taskDb.Title = taskDto.Title;
-        taskDb.Description = taskDto.Description;
-        taskDb.IsCompleted = taskDto.IsCompleted;
-
-        _db.Tasks.Update(taskDb);
-        _db.SaveChanges();
-        return taskDb;
-    }
-
-    public TaskModel SelectById(int id)
-    {
-        var taskDb = _db.Tasks.Find(id);
-        if (taskDb == null)
-            throw new TaskError("Tarefa Não Encontrada!");
-
-        return taskDb;
-    }
-
-    public void Delete(int id)
-    {
-        var taskDb = _db.Tasks.Find(id);
-        if (taskDb == null)
-            throw new TaskError("Tarefa Não Encontrada!");
-
-        _db.Tasks.Remove(taskDb);
-        _db.SaveChanges();
+        await _repository.DeleteAsync(id);
     }
 }
