@@ -10,9 +10,8 @@ public class TaskModel
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    [Required]
     [StringLength(100)]
-    public string Title { get; set; } = default!;
+    public required string Title { get; set; } = default!;
 
     [Column(TypeName = "text")]
     public string Description { get; set; } = default!;

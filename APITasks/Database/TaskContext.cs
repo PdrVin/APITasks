@@ -5,7 +5,6 @@ namespace APITasks.Database;
 
 public class TaskContext : DbContext
 {
-    #nullable disable
     public TaskContext(DbContextOptions<TaskContext> options) : base(options) {}
-    public DbSet<TaskModel> Tasks { get; set; } 
+    public DbSet<TaskModel>? Tasks { get; set; } 
 }
